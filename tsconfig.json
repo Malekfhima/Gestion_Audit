@@ -1,0 +1,24 @@
+// ==============================================
+// TYPESCRIPT CONFIGURATION
+// ==============================================
+// This file configures the TypeScript compiler
+//
+// Key compiler options to set:
+// - "target": "ES2020" - Target ECMAScript version
+// - "module": "commonjs" - Module system
+// - "lib": ["ES2020"] - Library files to include
+// - "outDir": "./dist" - Output directory for compiled files
+// - "rootDir": "./src" - Root directory of source files
+// - "strict": true - Enable all strict type checking options
+// - "esModuleInterop": true - Enable interop between CommonJS and ES modules
+// - "skipLibCheck": true - Skip type checking of declaration files
+// - "forceConsistentCasingInFileNames": true - Ensure consistent casing
+// - "resolveJsonModule": true - Allow importing JSON files
+// - "moduleResolution": "node" - Use Node.js module resolution
+// - "baseUrl": "./" - Base directory for module resolution
+// - "paths": { "@/*": ["src/*"] } - Path mapping for imports
+// - "experimentalDecorators": true - Enable decorators (if using)
+// - "emitDecoratorMetadata": true - Emit metadata for decorators
+//
+// Include: ["src/**/*"]
+// Exclude: ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]

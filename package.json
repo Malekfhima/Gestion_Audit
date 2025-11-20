@@ -1,0 +1,34 @@
+// ==============================================
+// PACKAGE.JSON
+// ==============================================
+// This file defines the project dependencies and scripts
+//
+// Required dependencies:
+// - express: Web framework
+// - mongoose: MongoDB ODM
+// - typescript: TypeScript compiler
+// - dotenv: Environment variable management
+// - cors: Cross-origin resource sharing
+// - helmet: Security headers
+// - express-rate-limit: Rate limiting middleware
+// - bcryptjs: Password hashing
+// - jsonwebtoken: JWT token generation/verification
+// - joi: Data validation
+// - winston: Logging library
+// - morgan: HTTP request logger
+// - swagger-jsdoc: Swagger/OpenAPI documentation
+// - swagger-ui-express: Swagger UI
+//
+// Dev dependencies:
+// - @types/node, @types/express, @types/cors, etc.: TypeScript type definitions
+// - ts-node: Execute TypeScript directly
+// - nodemon: Auto-restart on file changes
+// - eslint: Code linting
+// - prettier: Code formatting
+//
+// Scripts to define:
+// - "dev": "nodemon src/server.ts" - Run development server
+// - "build": "tsc" - Compile TypeScript to JavaScript
+// - "start": "node dist/server.js" - Run production server
+// - "lint": "eslint src/**/*.ts" - Run linter
+// - "format": "prettier --write src/**/*.ts" - Format code

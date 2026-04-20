@@ -1,87 +1,71 @@
-// ==============================================
-// MODULE: USERS - CONTROLLER LAYER
-// ==============================================
-//
-// HTTP REQUEST HANDLERS FOR USER ENDPOINTS
-//
-// IMPORTS:
-// - express types
-// - asyncHandler
-// - userService
-// - pagination utils
-// - validation
-//
-// CONTROLLER FUNCTIONS:
-//
-// 1. createUser (POST /users)
-//    - Middleware: authenticate, authorize('ADMIN')
-//    - Body: CreateUserDto
-//    - Call userService.createUser()
-//    - Return 201 Created
-//
-// 2. getUser (GET /users/:id)
-//    - Middleware: authenticate
-//    - Params: id
-//    - Call userService.getUserById()
-//    - Return 200 OK with user data
-//
-// 3. updateUser (PUT /users/:id)
-//    - Middleware: authenticate, authorize('ADMIN') or owner
-//    - Params: id
-//    - Body: UpdateUserDto
-//    - Call userService.updateUser()
-//    - Return 200 OK with updated user
-//
-// 4. deleteUser (DELETE /users/:id)
-//    - Middleware: authenticate, authorize('ADMIN')
-//    - Params: id
-//    - Call userService.deleteUser()
-//    - Return 200 OK with success message
-//
-// 5. getAllUsers (GET /users)
-//    - Middleware: authenticate, authorize('ADMIN', 'MANAGER')
-//    - Query: page, limit, sortBy, sortOrder, role, isActive, search
-//    - Parse pagination params
-//    - Call userService.getAllUsers()
-//    - Return 200 OK with paginated result
-//
-// 6. activateUser (POST /users/:id/activate)
-//    - Middleware: authenticate, authorize('ADMIN')
-//    - Params: id
-//    - Call userService.activateUser()
-//    - Return 200 OK
-//
-// 7. deactivateUser (POST /users/:id/deactivate)
-//    - Middleware: authenticate, authorize('ADMIN')
-//    - Params: id
-//    - Call userService.deactivateUser()
-//    - Return 200 OK
-//
-// 8. changeUserRole (PATCH /users/:id/role)
-//    - Middleware: authenticate, authorize('ADMIN')
-//    - Params: id
-//    - Body: { role: string }
-//    - Call userService.changeUserRole()
-//    - Return 200 OK
-//
-// 9. getCurrentUserProfile (GET /users/me)
-//    - Middleware: authenticate
-//    - Get user from req.user
-//    - Return 200 OK with user profile
-//
-// 10. updateCurrentUserProfile (PUT /users/me)
-//     - Middleware: authenticate
-//     - Body: UpdateUserDto (limited fields)
-//     - Call userService.updateUser() with req.user.id
-//     - Return 200 OK
-//
-// VALIDATION:
-// - Validate all input data
-// - Check ID format (valid MongoDB ObjectId)
-// - Validate role values
-// - Sanitize search queries
-//
-// AUTHORIZATION:
-// - Admins can manage all users
-// - Users can only view/update their own profile
-// - Implement ownership check for update/delete
+import { Request, Response } from 'express';
+import asyncHandler from '../../core/http/asyncHandler';
+import { userService } from './user.service';
+import { parsePaginationParams } from '../../core/utils/pagination';
+import { CreateUserDto, UpdateUserDto } from './user.types';
+
+export const createUser = asyncHandler(async (req: Request, res: Response) => {
+  const dto: CreateUserDto = req.body;
+  const user = await userService.createUser(dto);
+  res.status(201).json({ success: true, data: user });
+});
+
+export const getUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await userService.getUserById(id);
+  res.json({ success: true, data: user });
+});
+
+export const updateUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const dto: UpdateUserDto = req.body;
+  const user = await userService.updateUser(id, dto);
+  res.json({ success: true, data: user });
+});
+
+export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await userService.deleteUser(id);
+  res.json({ success: true, message: 'User deleted successfully' });
+});
+
+export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
+  const pagination = parsePaginationParams(req.query);
+  const filters: any = {};
+
+  if (req.query.role) filters.role = req.query.role;
+  if (req.query.isActive !== undefined) filters.isActive = req.query.isActive === 'true';
+  if (req.query.search) filters.search = req.query.search;
+
+  const result = await userService.getAllUsers(filters, pagination);
+  res.json({ success: true, ...result });
+});
+
+export const activateUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await userService.activateUser(id);
+  res.json({ success: true, data: user });
+});
+
+export const deactivateUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await userService.deactivateUser(id);
+  res.json({ success: true, data: user });
+});
+
+export const changeUserRole = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  const user = await userService.changeUserRole(id, role);
+  res.json({ success: true, data: user });
+});
+
+export const getCurrentUserProfile = asyncHandler(async (req: Request, res: Response) => {
+  res.json({ success: true, data: req.user });
+});
+
+export const updateCurrentUserProfile = asyncHandler(async (req: Request, res: Response) => {
+  const dto: UpdateUserDto = req.body;
+  const user = await userService.updateUser(req.user._id, dto);
+  res.json({ success: true, data: user });
+});

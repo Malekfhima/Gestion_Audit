@@ -1,41 +1,52 @@
-// ==============================================
-// SERVER.TS - APPLICATION ENTRY POINT
-// ==============================================
-// This file is the main entry point for the application
-// It is responsible for starting the Express server and connecting to MongoDB
-//
-// IMPORTS NEEDED:
-// - dotenv: to load environment variables from .env file
-// - app: the Express application instance from app.ts
-// - connectDatabase: MongoDB connection function from config/database.ts
-// - logger: logging utility from core/utils/logger.ts
-//
-// MAIN RESPONSIBILITIES:
-// 1. Load environment variables using dotenv.config()
-// 2. Extract PORT from process.env (default to 4000 if not set)
-// 3. Connect to MongoDB database using connectDatabase()
-// 4. Start the Express server using app.listen(PORT)
-// 5. Log successful server startup with port number
-// 6. Handle database connection errors and log them
-// 7. Handle uncaught exceptions and unhandled promise rejections
-//    - Log the error
-//    - Close the server gracefully
-//    - Exit the process with appropriate exit code
-//
-// ERROR HANDLING:
-// - process.on('uncaughtException', handler) - catch synchronous errors
-// - process.on('unhandledRejection', handler) - catch async errors
-// - Graceful shutdown: close database connection and server before exit
-//
-// EXAMPLE STRUCTURE:
-// - Load dotenv at the very beginning
-// - Define async function to start server
-// - Inside function: await connectDatabase(), then app.listen()
-// - Call the start function and catch any errors
-// - Set up process error handlers
-//
-// LOGGING:
-// - Log "Starting server..." when beginning
-// - Log "Connected to MongoDB successfully" on DB connection
-// - Log "Server listening on port {PORT}" when server starts
-// - Log detailed error information on failures
+import dotenv from "dotenv";
+dotenv.config();
+
+import app from "./app";
+import connectDatabase from "./config/database";
+import logger from "./core/utils/logger";
+import config from "./config/config";
+
+let server: any;
+
+const startServer = async () => {
+  try {
+    logger.info("🚀 Starting server...");
+
+    await connectDatabase();
+
+    server = app.listen(config.server.port, () => {
+      logger.info(
+        `✅ Server listening on port ${config.server.port}`
+      );
+    });
+  } catch (error) {
+    logger.error("❌ Server startup failed", error);
+    process.exit(1);
+  }
+};
+
+// Handle uncaught exceptions
+process.on("uncaughtException", (err) => {
+  logger.error("❌ Uncaught Exception", {
+    message: err.message,
+    stack: err.stack,
+  });
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (reason: any) => {
+  logger.error("❌ Unhandled Rejection", {
+    reason,
+  });
+
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+});
+
+startServer();

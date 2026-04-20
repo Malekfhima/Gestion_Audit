@@ -1,22 +1,33 @@
-// ==============================================
-// MODULE: LEGAL - ROUTES CONFIGURATION
-// ==============================================
-// Legal Requirements:
-// POST /requirements - create
-// GET /requirements - get all
-// GET /requirements/upcoming-reviews
-// GET /requirements/site/:siteId
-// GET /requirements/:id - get
-// PUT /requirements/:id - update
-// DELETE /requirements/:id - delete
-// POST /requirements/:id/sites
-// POST /requirements/:id/responsible
-//
-// Legal Compliance:
-// POST /compliance - assess
-// GET /compliance/requirement/:requirementId/site/:siteId
-// GET /compliance/site/:siteId/report
-// GET /compliance/non-compliant
-// GET /compliance/statistics
-// PATCH /compliance/:id/status
-// POST /compliance/:id/action-plan
+import { Router } from 'express';
+import * as legalController from './legal.controller';
+import { authenticate } from '../../core/auth/authMiddleware';
+import { authorize } from '../../core/auth/roleMiddleware';
+
+const router = Router();
+
+const requirementsRouter = Router();
+requirementsRouter.post('/', authenticate, authorize('ADMIN', 'MANAGER'), legalController.createRequirement);
+requirementsRouter.get('/', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getAllRequirements);
+requirementsRouter.get('/upcoming-reviews', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getUpcomingReviews);
+requirementsRouter.get('/site/:siteId', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getRequirementsBySite);
+requirementsRouter.get('/:id', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getRequirement);
+requirementsRouter.put('/:id', authenticate, authorize('ADMIN', 'MANAGER'), legalController.updateRequirement);
+requirementsRouter.delete('/:id', authenticate, authorize('ADMIN'), legalController.deleteRequirement);
+requirementsRouter.post('/:id/sites', authenticate, authorize('ADMIN', 'MANAGER'), legalController.assignToSites);
+requirementsRouter.post('/:id/responsible', authenticate, authorize('ADMIN', 'MANAGER'), legalController.assignResponsible);
+
+const complianceRouter = Router();
+complianceRouter.post('/', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.assessCompliance);
+complianceRouter.get('/', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getAllCompliances);
+complianceRouter.get('/non-compliant', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getNonCompliantRequirements);
+complianceRouter.get('/review', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getCompliancesNeedingReview);
+complianceRouter.get('/statistics', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getComplianceStatistics);
+complianceRouter.get('/site/:siteId/report', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getComplianceReport);
+complianceRouter.get('/:id', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.getCompliance);
+complianceRouter.patch('/:id/status', authenticate, authorize('ADMIN', 'MANAGER', 'AUDITOR'), legalController.updateComplianceStatus);
+complianceRouter.post('/:id/action-plan', authenticate, authorize('ADMIN', 'MANAGER'), legalController.linkActionPlan);
+
+router.use('/requirements', requirementsRouter);
+router.use('/compliance', complianceRouter);
+
+export default router;

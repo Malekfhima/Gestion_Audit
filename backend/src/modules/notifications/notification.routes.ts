@@ -1,12 +1,18 @@
-// ==============================================
-// MODULE: NOTIFICATIONS - ROUTES CONFIGURATION
-// ==============================================
-// GET / - get notifications (with pagination, status filter)
-// GET /unread-count - get unread count
-// GET /:id - get notification
-// PATCH /:id/read - mark as read
-// PATCH /read-all - mark all as read
-// POST /:id/archive - archive
-// DELETE /:id - delete
-//
-// All routes require authentication
+import { Router } from 'express';
+import * as notificationController from './notification.controller';
+import { authenticate } from '../../core/auth/authMiddleware';
+import { authorize } from '../../core/auth/roleMiddleware';
+
+const router = Router();
+
+router.post('/', authenticate, authorize('ADMIN', 'MANAGER'), notificationController.createNotification);
+router.get('/', authenticate, notificationController.getNotifications);
+router.get('/unread-count', authenticate, notificationController.getUnreadCount);
+router.get('/:id', authenticate, notificationController.getNotification);
+router.patch('/:id/read', authenticate, notificationController.markAsRead);
+router.patch('/read-all', authenticate, notificationController.markAllAsRead);
+router.post('/:id/archive', authenticate, notificationController.archiveNotification);
+router.delete('/:id', authenticate, notificationController.deleteNotification);
+router.post('/cleanup', authenticate, authorize('ADMIN'), notificationController.deleteOldNotifications);
+
+export default router;

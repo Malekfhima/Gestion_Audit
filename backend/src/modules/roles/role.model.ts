@@ -1,17 +1,38 @@
-// ==============================================
-// MODULE: ROLES - MONGOOSE MODEL
-// ==============================================
-// Schema for user roles and permissions
-//
-// Fields:
-// - name: string (unique, required) - e.g., 'ADMIN', 'AUDITOR'
-// - description: string
-// - permissions: string[] - array of permission strings
-//   * e.g., ['user:read', 'user:write', 'audit:create', 'audit:delete']
-// - isSystemRole: boolean (default: false) - prevents deletion of system roles
-// - createdAt, updatedAt: timestamps
-//
-// Indexes:
-// - name: unique
-//
-// Used for fine-grained permission control beyond basic role checks
+import { Schema, model, Document } from 'mongoose';
+
+export interface IRole extends Document {
+  name: string;
+  description: string;
+  permissions: string[];
+  isSystemRole: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const RoleSchema = new Schema<IRole>(
+  {
+    name: {
+      type: String,
+      required: [true, 'Role name is required'],
+      unique: true,
+      trim: true,
+      uppercase: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    permissions: {
+      type: [String],
+      default: [],
+    },
+    isSystemRole: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
+
+export const Role = model<IRole>('Role', RoleSchema);

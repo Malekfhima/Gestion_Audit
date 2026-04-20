@@ -1,7 +1,35 @@
-// ==============================================
-// MODULE: REPORTS - TYPE DEFINITIONS
-// ==============================================
-// GenerateReportDto: { type, filters, format, parameters }
-// ReportType: 'AUDIT_SUMMARY' | 'NC_STATUS' | 'CORRECTIVE_ACTIONS' | 'COMPLIANCE' | 'RISK_MATRIX' | 'SITE_PERFORMANCE' | 'CUSTOM'
-// ReportFormat: 'PDF' | 'EXCEL' | 'CSV' | 'JSON'
-// ReportStatus: 'GENERATING' | 'COMPLETED' | 'FAILED'
+import { ReportType, ReportFormat, ReportStatus } from './report.model';
+
+export interface GenerateReportDto {
+  name: string;
+  type: ReportType;
+  format: ReportFormat;
+  filters: Record<string, any>;
+  expiresAt?: Date;
+  generatedById?: string;
+}
+
+export interface ReportResponse {
+  id: string;
+  reportNumber: string;
+  name: string;
+  type: ReportType;
+  format: ReportFormat;
+  filters: Record<string, any>;
+  status: ReportStatus;
+  filePath?: string;
+  fileSize?: number;
+  generatedById: string;
+  generatedAt: Date;
+  expiresAt?: Date;
+  error?: string;
+  createdAt: Date;
+}
+
+export interface ReportFilters {
+  type?: ReportType;
+  status?: ReportStatus;
+  generatedById?: string;
+  startDate?: Date;
+  endDate?: Date;
+}

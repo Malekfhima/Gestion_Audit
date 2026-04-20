@@ -1,8 +1,26 @@
-// ==============================================
-// MODULE: ROLES - TYPE DEFINITIONS
-// ==============================================
-// Role-based access control (RBAC) types
-//
-// CreateRoleDto: { name, description, permissions[] }
-// UpdateRoleDto: { name?, description?, permissions[]? }
-// RoleResponse: { id, name, description, permissions[], createdAt, updatedAt }
+export interface CreateRoleDto {
+  name: string;
+  description?: string;
+  permissions: string[];
+}
+
+export interface UpdateRoleDto {
+  name?: string;
+  description?: string;
+  permissions?: string[];
+}
+
+export interface RoleResponse {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[];
+  isSystemRole: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface RoleFilters {
+  name?: string;
+  isSystemRole?: boolean;
+}

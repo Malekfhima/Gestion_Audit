@@ -1,27 +1,24 @@
-// ==============================================
-// MODULE: NORMS - ROUTES CONFIGURATION
-// ==============================================
-// Routes for norms, clauses, and checklists
-//
-// Norm routes:
-// - POST / - create norm
-// - GET / - get all norms
-// - GET /:id - get norm
-// - PUT /:id - update norm
-// - DELETE /:id - delete norm
-// - POST /:id/activate
-// - POST /:id/archive
-// - POST /:normId/clauses - add clause
-// - POST /:normId/checklists - create checklist
-//
-// Clause routes (sub-router):
-// - PUT /clauses/:id
-// - DELETE /clauses/:id
-//
-// Checklist routes (sub-router):
-// - GET /checklists/:id
-// - PUT /checklists/:id
-// - DELETE /checklists/:id
-// - POST /checklists/:id/duplicate
-//
-// Export router
+import { Router } from 'express';
+import {
+  createNorm,
+  getNorm,
+  updateNorm,
+  deleteNorm,
+  getAllNorms,
+  activateNorm,
+  archiveNorm,
+} from './norm.controller';
+import { authenticate } from '../../core/auth/authMiddleware';
+import { authorize } from '../../core/auth/roleMiddleware';
+
+const router = Router();
+
+router.post('/', authenticate, authorize('ADMIN', 'MANAGER'), createNorm);
+router.get('/', authenticate, getAllNorms);
+router.get('/:id', authenticate, getNorm);
+router.put('/:id', authenticate, authorize('ADMIN', 'MANAGER'), updateNorm);
+router.delete('/:id', authenticate, authorize('ADMIN'), deleteNorm);
+router.post('/:id/activate', authenticate, authorize('ADMIN'), activateNorm);
+router.post('/:id/archive', authenticate, authorize('ADMIN'), archiveNorm);
+
+export default router;
